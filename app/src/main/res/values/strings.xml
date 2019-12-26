@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">JdSmartOpenSdk</string>
+    <string name="check_update">检查升级</string>
+    <string name="toast_newest_version">已是最新版本</string>
+</resources>

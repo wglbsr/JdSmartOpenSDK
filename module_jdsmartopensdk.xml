@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_jdsmartopensdk" default="compile.module.jdsmartopensdk">
+  <dirname property="module.jdsmartopensdk.basedir" file="${ant.file.module_jdsmartopensdk}"/>
+  
+  <property name="module.jdk.home.jdsmartopensdk" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.jdsmartopensdk" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.jdsmartopensdk" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.jdsmartopensdk" value="-encoding UTF-8 -source 7 -target 7 ${compiler.args}"/>
+  
+  <property name="jdsmartopensdk.output.dir" value="undefined"/>
+  <property name="jdsmartopensdk.testoutput.dir" value="undefined"/>
+  
+  <path id="jdsmartopensdk.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="jdsmartopensdk.module.production.classpath">
+    <path refid="${module.jdk.classpath.jdsmartopensdk}"/>
+  </path>
+  
+  <path id="jdsmartopensdk.runtime.production.module.classpath"/>
+  
+  <path id="jdsmartopensdk.module.classpath">
+    <path refid="${module.jdk.classpath.jdsmartopensdk}"/>
+  </path>
+  
+  <path id="jdsmartopensdk.runtime.module.classpath"/>
+  
+  
+  <patternset id="excluded.from.module.jdsmartopensdk">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.jdsmartopensdk">
+    <patternset refid="excluded.from.module.jdsmartopensdk"/>
+  </patternset>
+  
+  
+  <target name="compile.module.jdsmartopensdk" depends="compile.module.jdsmartopensdk.production,compile.module.jdsmartopensdk.tests" description="Compile module JdSmartOpenSDK"/>
+  
+  <target name="compile.module.jdsmartopensdk.production" depends="register.custom.compilers" description="Compile module JdSmartOpenSDK; production classes"/>
+  
+  <target name="compile.module.jdsmartopensdk.tests" depends="register.custom.compilers,compile.module.jdsmartopensdk.production" description="compile module JdSmartOpenSDK; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.jdsmartopensdk" description="cleanup module">
+    <delete dir="${jdsmartopensdk.output.dir}"/>
+    <delete dir="${jdsmartopensdk.testoutput.dir}"/>
+  </target>
+</project>
