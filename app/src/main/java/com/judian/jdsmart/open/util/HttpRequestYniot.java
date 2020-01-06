@@ -12,13 +12,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-package com.judian.jdsmart.open;
+package com.judian.jdsmart.open.util;
 
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 
 import com.alibaba.fastjson.JSONObject;
+import com.judian.jdsmart.open.Constant;
+import com.judian.jdsmart.open.model.UserInfo;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -198,6 +200,15 @@ public class HttpRequestYniot {
         Map<String, Object> data = new HashMap<>();
         data.put(Constant.KEY_HOST_ADDRESS, hostAddress);
         post(context, Constant.VAL_UUID_DEFAULT, getTOKEN(), data, "/scene/scene_list", requestCode, useCache, listener);
+    }
+
+
+    public static void getRoomList(Context context, String hostAddress, String roomType,
+                                   final int requestCode, final HttpManager.OnHttpResponseListener listener) {
+        Map<String, Object> data = new HashMap<>();
+        data.put(Constant.KEY_ROOM_TYPE, hostAddress);
+        data.put(Constant.KEY_HOST_ADDRESS, roomType);
+        post(context, Constant.VAL_UUID_DEFAULT, getTOKEN(), data, "/room/room_list", requestCode, listener);
     }
 
 }

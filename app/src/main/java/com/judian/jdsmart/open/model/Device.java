@@ -1,5 +1,10 @@
 package com.judian.jdsmart.open.model;
 
+import com.judian.jdsmart.common.entity.JdSmartDevice;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -23,5 +28,23 @@ public class Device {
     private String deviceStatus;
     private int enabled = 0;
     private String manufacturer;
+
+    public JdSmartDevice toJdSmartDevice() {
+        JdSmartDevice jdSmartDevice = new JdSmartDevice();
+        jdSmartDevice.setDeviceId(this.getDeviceId() + "");
+        jdSmartDevice.setDeviceName(this.getName());
+        jdSmartDevice.setOnline(1);
+        jdSmartDevice.setDeviceType(this.getDeviceType());
+        return jdSmartDevice;
+    }
+
+
+    public List<JdSmartDevice> toJdSmartDeviceList(List<Device> deviceList) {
+        List<JdSmartDevice> jdSmartDeviceList = new ArrayList<>();
+        for (Device device : deviceList) {
+            jdSmartDeviceList.add(device.toJdSmartDevice());
+        }
+        return jdSmartDeviceList;
+    }
 
 }

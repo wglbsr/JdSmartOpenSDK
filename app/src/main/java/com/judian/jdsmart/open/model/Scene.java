@@ -1,5 +1,10 @@
 package com.judian.jdsmart.open.model;
 
+import com.judian.jdsmart.common.entity.JdSmartScene;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -20,4 +25,19 @@ public class Scene {
     private String time_created;
     private int sort;
 
+
+    public JdSmartScene toJdSmartScene() {
+        JdSmartScene jdSmartScene = new JdSmartScene();
+        jdSmartScene.setSceneName(getName());
+        jdSmartScene.setSceneNo(getSceneId() + "");
+        return jdSmartScene;
+    }
+
+    public List<JdSmartScene> toJdSmartScene(List<Scene> sceneList) {
+        List<JdSmartScene> jdSmartSceneList = new ArrayList<>();
+        for (Scene scene : sceneList) {
+            jdSmartSceneList.add(scene.toJdSmartScene());
+        }
+        return jdSmartSceneList;
+    }
 }

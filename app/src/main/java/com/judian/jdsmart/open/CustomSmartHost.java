@@ -34,6 +34,13 @@ import com.judian.jdsmart.common.entity.JdSmartSensorRecord;
 import com.judian.jdsmart.common.entity.JdSmartSensorRecordGroup;
 import com.judian.jdsmart.common.virtualhost.IJdSmartHost;
 import com.judian.jdsmart.common.virtualhost.JdSmartHostActionConstant;
+import com.judian.jdsmart.open.model.CategoryDevice;
+import com.judian.jdsmart.open.model.Device;
+import com.judian.jdsmart.open.model.Host;
+import com.judian.jdsmart.open.model.UserInfo;
+import com.judian.jdsmart.open.util.HttpManager;
+import com.judian.jdsmart.open.util.HttpRequestYniot;
+import com.judian.jdsmart.open.util.StringUtil;
 import com.judian.support.jdbase.JdbaseCallback;
 import com.judian.support.jdbase.JdbaseContant;
 import com.judian.support.jdbase.aidl.IAidlCallback;
@@ -41,12 +48,6 @@ import com.judian.support.jdbase.aidl.IAidlCallback;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
 
 /**
  * Created by Luke on 16-11-30.
@@ -191,6 +192,9 @@ public class CustomSmartHost implements IJdSmartHost {
      */
     private void initDemoDevices() {
 
+        //1.登陆
+        //2.获取主机(host)
+
 
 //        HttpRequestYniot.getDeviceList(mContext, HttpRequestYniot.hostAddress,
 //                "light,socket,security,environment,windowCurtains,transponder,other,electric,video",
@@ -208,9 +212,9 @@ public class CustomSmartHost implements IJdSmartHost {
         ArrayList<String> roomList = new ArrayList<>();
         ArrayList<String> floorList = new ArrayList<>();
 
-        roomList.add("客厅");
-        roomList.add("主卧");
-        roomList.add("阳台");
+        roomList.add("客厅215");
+        roomList.add("主卧217");
+        roomList.add("阳台218");
         floorList.add("1");
         floorList.add("2"); //楼层设置负数不能识别，最终会被归到1楼，楼层名只能包含中文和数字
 
@@ -1270,21 +1274,34 @@ public class CustomSmartHost implements IJdSmartHost {
                             LOGIN_FAIL_ACCOUNT_ERROR = -2;	用户名或密码错误
                             LOGIN_FAIL_NETWORK = -3;       网络问题导致登录失败
                         * */
-                        //如果支持显示家庭列表，登录成功后回调家庭列表
-                        if (false && mJdSmartHostInfo.isEnableSelectFamily()) {
-                            if (mFamilyList.size() == 0) {
-                                mFamilyList.add(new JdSmartFamily("1", "family1"));
-                                mFamilyList.add(new JdSmartFamily("2", "family2"));
-                                mFamilyList.add(new JdSmartFamily("3", "family3"));
-                            }
-                            callback.onResult(JdbaseContant.RESULT_SUCCESS, JSON.toJSONString(mFamilyList), "");
-                            setLoginState(JdSmartLoginConstant.LOGIN_OK);
-                        } else {
-                            callback.onResult(JdbaseContant.RESULT_SUCCESS, "success", "");
-                        }
+
+                        getHostList(callback);
                     }
                 });
 
+
+    }
+
+    private void getHostList(final JdbaseCallback callback) {
+        HttpRequestYniot.getHostList(mContext, HttpRequestYniot.userInfo.getUserId(), 0, false, new HttpManager.OnHttpResponseListener() {
+            @Override
+            public void onHttpResponse(int requestCode, String resultJson, Exception e) {
+                JSONObject result = JSONObject.parseObject(resultJson);
+                if (result == null || !result.containsKey(Constant.KEY_DEVICE_LIST)) {
+                    callback.onResult(JdbaseContant.RESULT_SUCCESS, "success", "");
+                    return;
+                }
+                List<Host> hostList = JSONObject.parseArray(result.getString(Constant.KEY_DEVICE_LIST), Host.class);
+                //如果支持显示家庭列表，登录成功后回调家庭列表
+                if (mJdSmartHostInfo.isEnableSelectFamily() && hostList != null && hostList.size() > 0) {
+                    mFamilyList = Host.toFamilyList(hostList);
+                    callback.onResult(JdbaseContant.RESULT_SUCCESS, JSON.toJSONString(mFamilyList), "");
+                    setLoginState(JdSmartLoginConstant.LOGIN_OK);
+                } else {
+                    callback.onResult(JdbaseContant.RESULT_SUCCESS, "success", "");
+                }
+            }
+        });
 
     }
 
@@ -1307,6 +1324,26 @@ public class CustomSmartHost implements IJdSmartHost {
         mJdSmartHostInfo.setCurFamilyName("test name");
         callback.onResult(JdbaseContant.RESULT_SUCCESS, "success", "");
         //callback.onResult(JdbaseContant.RESULT_FAIL, "fail", "");
+
+
+    }
+
+    private void getMyDevice(JdbaseCallback callback) {
+        HttpRequestYniot.getDeviceList(mContext, "", null, null, 0, new HttpManager.OnHttpResponseListener() {
+            @Override
+            public void onHttpResponse(int requestCode, String resultJson, Exception e) {
+                JSONObject result = JSONObject.parseObject(resultJson);
+                List<CategoryDevice> categoryDeviceList = new ArrayList<>();
+                List<Device> deviceList = new ArrayList<>();
+                for (String key : result.keySet()) {
+                    JSONObject cate = result.getJSONObject(key);
+                    CategoryDevice categoryDevice = cate.toJavaObject(CategoryDevice.class);
+                    categoryDevice.setCategoryName(key);
+                    categoryDeviceList.add(categoryDevice);
+                    deviceList.addAll(categoryDevice.getDeviceList());
+                }
+            }
+        });
     }
 
     @Override
